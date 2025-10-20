@@ -20,8 +20,33 @@ $in = parse_input();
 
 switch($in->action){
 
+	// The issue is happening because here, we have a "Not Implemented" error firing every time we press the delete button.
+	// So, the solution is to implement our 'delete_todo' case so that our back end deletes the todo.
 	case 'delete_todo':
-		error('Not implemented.');
+		// Lets validate our input first
+		$rawID = getInput('id', true);
+		$id = filter_var($rawID, FILTER_VALIDATE_INT);
+		if(!$id){
+			error('Invalid ID.');
+			break;
+		}
+		try {
+			// Here we are going to prepare an sql statement that we will execute, afterwards we will replace our "id= ?" with a proper id, which is coming from react via response
+			$stmt = $pdo->prepare('DELETE FROM todo WHERE id= ?');
+			$stmt->execute ([$id]);
+
+			if ($stmt->rowCount() === 0){
+				// Deletion did not happen - possibly already hone or bad ID
+				error("Todo not found.");
+				break;
+
+			}
+			// Success!
+			$response['data'] = ['deleted' => $stmt->rowCount() > 0];
+		} catch (Throwable $e) {
+			error('Failed to delete item.');
+		}	
+		// error('Not implemented.');
 		break;
 
 	case 'toggle_done':
