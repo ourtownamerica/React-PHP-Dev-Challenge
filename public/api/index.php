@@ -21,7 +21,9 @@ $in = parse_input();
 switch($in->action){
 
 	case 'delete_todo':
-		error('Not implemented.');
+		$id = getInput('id', true);
+    	$stmt = $pdo->prepare("DELETE FROM todo WHERE id = ?");
+    	$stmt->execute([$id]);
 		break;
 
 	case 'toggle_done':
